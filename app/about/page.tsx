@@ -1,24 +1,6 @@
-import { Heart, Users, Zap, Award, Leaf, Shield, Droplets, Baby } from 'lucide-react';
+import { Heart, Users, Zap, Award, Leaf, Shield, Baby } from 'lucide-react';
 
 export default function About() {
-  const bathMatBenefits = [
-    {
-      icon: <Droplets className="h-8 w-8 text-blue-600" />,
-      title: "Pure Bliss",
-      description: "Sink your feet into comfort after every bath or shower with our ultra-soft surface."
-    },
-    {
-      icon: <Heart className="h-8 w-8 text-red-500" />,
-      title: "Bathroom Ambiance",
-      description: "Colorful funny phrases add brightness and transform your bathroom's atmosphere."
-    },
-    {
-      icon: <Shield className="h-8 w-8 text-green-600" />,
-      title: "Anti-Slip Safety",
-      description: "Stays securely firm to the ground with advanced anti-slip technology."
-    }
-  ];
-
   const stackingRocksBenefits = [
     {
       icon: <Zap className="h-8 w-8 text-amber-600" />,
@@ -62,7 +44,7 @@ export default function About() {
               About <span className="text-amber-600">Qubomax</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Discover Qubomax - bringing comfort, joy, and creativity to your home, one product at a time.
+              Discover Qubomax - bringing creativity and learning to your home through natural wooden toys.
             </p>
           </div>
         </div>
@@ -79,81 +61,26 @@ export default function About() {
               <div className="prose prose-lg text-gray-600 space-y-4">
                 <p>
                   We began this journey as a means to help people elevate their comfort and make their kids smarter. 
-                  Currently, we have two products in our store: Get Naked Bath Mat and Stacking Rocks for Kids.
+                  Currently, we have our signature product in our store: Stacking Rocks for Kids.
                 </p>
                 <p>
                   At Qubomax, we believe that the best products are those that enhance your daily life while 
-                  contributing to your family's well-being. Our carefully curated selection focuses on quality, 
-                  comfort, and creativity.
+                  contributing to your family's well-being. Our carefully curated wooden toys focus on quality, 
+                  creativity, and child development.
                 </p>
                 <p>
                   We strive to create a seamless shopping experience where you can effortlessly buy our products 
-                  and elevate your daily routine.
+                  and elevate your child's learning through natural play.
                 </p>
               </div>
             </div>
             <div className="mt-8 lg:mt-0">
               <img
                 src="/images/kids-playing-1.jpg"
-                alt="Family enjoying Qubomax products"
+                alt="Children playing with Qubomax stacking rocks"
                 className="rounded-2xl shadow-xl w-full h-auto object-cover"
               />
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Get Naked Bath Mat Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-50 to-cyan-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Get Naked Bath Mat
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Transform your bathroom into a spa-like experience with our comfort-focused bath mat.
-            </p>
-          </div>
-
-          <div className="lg:grid lg:grid-cols-2 lg:gap-12 items-center mb-12">
-            <div className="mb-8 lg:mb-0">
-              <img
-                src="/images/hero-product.jpg"
-                alt="Get Naked Bath Mat"
-                className="rounded-2xl shadow-xl w-full h-auto object-cover"
-              />
-            </div>
-            <div>
-              <div className="prose prose-lg text-gray-600 space-y-4">
-                <p>
-                  The Get Naked Bath Mat is designed to help you sink your feet into pure bliss after you've 
-                  taken a bath or shower. The mat features a colorful funny phrase that will add much-needed 
-                  brightness to your bathroom and transform its ambiance.
-                </p>
-                <p>
-                  Its softness provides a comfortable stepping surface, while its anti-slip qualities keep it 
-                  securely firm to the ground. Whether you want to upgrade your bathroom's elegance or turn 
-                  your shower into a spa-like experience, our Get Naked Bath Mat is here to give you a blissful retreat.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {bathMatBenefits.map((benefit, index) => (
-              <div
-                key={index}
-                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 border border-blue-100"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mr-4">
-                    {benefit.icon}
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">{benefit.title}</h3>
-                </div>
-                <p className="text-gray-600">{benefit.description}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -174,7 +101,7 @@ export default function About() {
             <div>
               <div className="prose prose-lg text-gray-600 space-y-4">
                 <p>
-                  Our second product is Stacking Rocks for Kids, designed to help kids foster imagination and 
+                  Our Stacking Rocks for Kids are designed to help kids foster imagination and 
                   develop motor skills. Available in different shapes and sizes, the stacks strengthen family 
                   bonding as kids will engage with other members while playing.
                 </p>
@@ -234,14 +161,14 @@ export default function About() {
                 <Heart className="h-8 w-8 text-green-600" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Comfort</h3>
-              <p className="text-sm text-gray-600">Elevating your daily comfort experience</p>
+              <p className="text-sm text-gray-600">Elevating your family's daily experience</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Zap className="h-8 w-8 text-amber-600" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Joy</h3>
-              <p className="text-sm text-gray-600">Bringing happiness to your home</p>
+              <p className="text-sm text-gray-600">Bringing happiness through natural play</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -282,12 +209,12 @@ export default function About() {
             <div className="relative group">
               <img
                 src="/images/focused-learning.jpg"
-                alt="Comfortable bathroom experience"
+                alt="Child focused on learning through play"
                 className="rounded-2xl shadow-lg w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3">
-                <p className="font-medium text-gray-900">Daily Comfort</p>
-                <p className="text-sm text-gray-600">Elevating your everyday routine</p>
+                <p className="font-medium text-gray-900">Natural Learning</p>
+                <p className="text-sm text-gray-600">Educational play that develops minds</p>
               </div>
             </div>
           </div>
