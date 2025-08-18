@@ -77,7 +77,7 @@ export default function About() {
             </div>
             <div className="mt-8 lg:mt-0">
               <img
-                src="https://images.pexels.com/photos/8923962/pexels-photo-8923962.jpeg?auto=compress&cs=tinysrgb&w=800"
+                src="/images/kids-playing-1.jpg"
                 alt="Children playing with wooden toys"
                 className="rounded-2xl shadow-xl w-full h-auto object-cover"
               />
@@ -132,7 +132,7 @@ export default function About() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="relative group">
               <img
-                src="https://images.pexels.com/photos/8613094/pexels-photo-8613094.jpeg?auto=compress&cs=tinysrgb&w=600"
+                src="/images/kids-building.jpg"
                 alt="Child building with wooden blocks"
                 className="rounded-2xl shadow-lg w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
               />
@@ -144,7 +144,7 @@ export default function About() {
 
             <div className="relative group">
               <img
-                src="https://images.pexels.com/photos/8923965/pexels-photo-8923965.jpeg?auto=compress&cs=tinysrgb&w=600"
+                src="/images/kids-social-play.jpg"
                 alt="Kids playing together with wooden toys"
                 className="rounded-2xl shadow-lg w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
               />
@@ -156,7 +156,7 @@ export default function About() {
 
             <div className="relative group">
               <img
-                src="https://images.pexels.com/photos/8613063/pexels-photo-8613063.jpeg?auto=compress&cs=tinysrgb&w=600"
+                src="/images/focused-learning.jpg"
                 alt="Focused child playing with educational toys"
                 className="rounded-2xl shadow-lg w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
               />

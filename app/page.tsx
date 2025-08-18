@@ -50,7 +50,7 @@ export default function Home() {
               <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
                 <div className="absolute inset-0 bg-gradient-to-r from-amber-200 to-orange-200 rounded-3xl transform rotate-3 scale-105"></div>
                 <img
-                  src="https://images.pexels.com/photos/8613060/pexels-photo-8613060.jpeg?auto=compress&cs=tinysrgb&w=800"
+                  src="/images/hero-product.jpg"
                   alt="Wooden stacking rocks toys"
                   className="relative rounded-3xl shadow-2xl w-full h-auto object-cover"
                 />

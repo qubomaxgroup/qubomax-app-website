@@ -7,7 +7,7 @@ export default function Product() {
     {
       id: 1,
       name: "Classic RockStack Set",
-      image: "https://images.pexels.com/photos/8613060/pexels-photo-8613060.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: "/images/classic-set.jpg",
       description: "Our signature set of 12 wooden stacking rocks in various sizes and natural wood tones. Perfect for beginners and includes a storage bag.",
       features: ["12 unique wooden pieces", "Storage bag included", "Ages 3+", "Natural wood finish"],
       price: "$29.99",
@@ -16,7 +16,7 @@ export default function Product() {
     {
       id: 2,
       name: "Rainbow RockStack Collection",
-      image: "https://images.pexels.com/photos/8923962/pexels-photo-8923962.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: "/images/rainbow-set.jpg",
       description: "Colorful wooden rocks with safe, water-based stains in vibrant colors. Combines natural wood beauty with engaging rainbow hues.",
       features: ["15 colorful pieces", "Non-toxic water-based stains", "Ages 2+", "Color learning guide"],
       price: "$39.99",
@@ -25,7 +25,7 @@ export default function Product() {
     {
       id: 3,
       name: "Deluxe RockStack Builder",
-      image: "https://images.pexels.com/photos/8613094/pexels-photo-8613094.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: "/images/deluxe-set.jpg",
       description: "Premium large set with 20 pieces including extra-large base rocks and miniature pieces for advanced building challenges.",
       features: ["20 assorted pieces", "Extra-large base rocks", "Advanced building guide", "Premium storage box"],
       price: "$59.99",
@@ -34,7 +34,7 @@ export default function Product() {
     {
       id: 4,
       name: "Mini Travel RockStack",
-      image: "https://images.pexels.com/photos/8923965/pexels-photo-8923965.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: "/images/travel-set.jpg",
       description: "Compact travel-friendly set perfect for on-the-go play. Includes 8 smaller rocks in a portable wooden box.",
       features: ["8 travel-sized pieces", "Portable wooden box", "Perfect for travel", "Compact design"],
       price: "$19.99",
@@ -44,17 +44,17 @@ export default function Product() {
 
   const gallery = [
     {
-      image: "https://images.pexels.com/photos/8613063/pexels-photo-8613063.jpeg?auto=compress&cs=tinysrgb&w=800",
+      image: "/images/natural-wood-beauty.jpg",
       title: "Natural Wood Beauty",
       description: "Each piece showcases the unique grain and character of premium hardwood."
     },
     {
-      image: "https://images.pexels.com/photos/8923968/pexels-photo-8923968.jpeg?auto=compress&cs=tinysrgb&w=800",
+      image: "/images/endless-creativity.jpg",
       title: "Endless Creativity",
       description: "Build towers, sculptures, and imaginative structures with no limits."
     },
     {
-      image: "https://images.pexels.com/photos/8613067/pexels-photo-8613067.jpeg?auto=compress&cs=tinysrgb&w=800",
+      image: "/images/perfect-balance.jpg",
       title: "Perfect Balance",
       description: "Carefully weighted and shaped for optimal stacking and balancing challenges."
     }

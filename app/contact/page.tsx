@@ -211,22 +211,22 @@ export default function Contact() {
 
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
             <img
-              src="https://images.pexels.com/photos/8613063/pexels-photo-8613063.jpeg?auto=compress&cs=tinysrgb&w=300"
+              src="/images/customer-creation-1.jpg"
               alt="Customer creation 1"
               className="rounded-lg shadow-md hover:shadow-lg transition-shadow"
             />
             <img
-              src="https://images.pexels.com/photos/8923965/pexels-photo-8923965.jpeg?auto=compress&cs=tinysrgb&w=300"
+              src="/images/customer-creation-2.jpg"
               alt="Customer creation 2"
               className="rounded-lg shadow-md hover:shadow-lg transition-shadow"
             />
             <img
-              src="https://images.pexels.com/photos/8613094/pexels-photo-8613094.jpeg?auto=compress&cs=tinysrgb&w=300"
+              src="/images/customer-creation-3.jpg"
               alt="Customer creation 3"
               className="rounded-lg shadow-md hover:shadow-lg transition-shadow"
             />
             <img
-              src="https://images.pexels.com/photos/8923962/pexels-photo-8923962.jpeg?auto=compress&cs=tinysrgb&w=300"
+              src="/images/customer-creation-4.jpg"
               alt="Customer creation 4"
               className="rounded-lg shadow-md hover:shadow-lg transition-shadow"
             />
