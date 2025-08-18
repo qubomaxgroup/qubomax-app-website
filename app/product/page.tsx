@@ -67,10 +67,10 @@ export default function Product() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              Our <span className="text-amber-600">Product Range</span>
+              Our <span className="text-amber-600">RockStack Set</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-              Discover our collection of handcrafted wooden stacking rocks, designed to inspire creativity and learning through natural play.
+              Discover our handcrafted wooden stacking rocks set, designed to inspire creativity and learning through natural play.
             </p>
             <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-700">
               <div className="flex items-center">
@@ -126,61 +126,80 @@ export default function Product() {
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Your Perfect Set</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">RockStack Wooden Stacking Set</h2>
             <p className="text-lg text-gray-600">
-              Each RockStack set is designed for different ages and play styles.
+              Our signature wooden stacking rocks set designed for creative play and learning.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {products.map((product) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-xl transition-shadow duration-300 bg-white">
-                <div className="aspect-w-16 aspect-h-12">
+          <div className="max-w-4xl mx-auto">
+            <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 bg-white">
+              <div className="lg:grid lg:grid-cols-2 lg:gap-0">
+                {/* Product Image */}
+                <div className="aspect-w-16 aspect-h-12 lg:aspect-none">
                   <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-64 object-cover"
+                    src="/images/classic-set.jpg"
+                    alt="RockStack Wooden Stacking Set"
+                    className="w-full h-64 lg:h-full object-cover"
                   />
                 </div>
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
-                    <span className="text-2xl font-bold text-amber-600">{product.price}</span>
+                
+                {/* Product Details */}
+                <CardContent className="p-8 lg:p-12">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-2xl lg:text-3xl font-bold text-gray-900">RockStack Set</h3>
+                    <span className="text-3xl lg:text-4xl font-bold text-amber-600">$29.99</span>
                   </div>
                   
-                  <p className="text-gray-600 mb-4 leading-relaxed">{product.description}</p>
+                  <p className="text-gray-600 mb-6 leading-relaxed text-lg">
+                    Our signature set of 12 handcrafted wooden stacking rocks in various sizes and natural wood tones. 
+                    Perfect for developing creativity, balance, and motor skills through natural play.
+                  </p>
                   
-                  <div className="mb-6">
-                    <h4 className="font-semibold text-gray-900 mb-2">Features:</h4>
-                    <ul className="grid grid-cols-2 gap-1 text-sm text-gray-600">
-                      {product.features.map((feature, index) => (
-                        <li key={index} className="flex items-center">
-                          <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mr-2 flex-shrink-0"></span>
-                          {feature}
-                        </li>
-                      ))}
+                  <div className="mb-8">
+                    <h4 className="font-semibold text-gray-900 mb-4 text-lg">What's Included:</h4>
+                    <ul className="space-y-2 text-gray-600">
+                      <li className="flex items-center">
+                        <span className="w-2 h-2 bg-amber-400 rounded-full mr-3 flex-shrink-0"></span>
+                        12 unique wooden stacking pieces
+                      </li>
+                      <li className="flex items-center">
+                        <span className="w-2 h-2 bg-amber-400 rounded-full mr-3 flex-shrink-0"></span>
+                        Premium storage bag included
+                      </li>
+                      <li className="flex items-center">
+                        <span className="w-2 h-2 bg-amber-400 rounded-full mr-3 flex-shrink-0"></span>
+                        Suitable for ages 3 and up
+                      </li>
+                      <li className="flex items-center">
+                        <span className="w-2 h-2 bg-amber-400 rounded-full mr-3 flex-shrink-0"></span>
+                        Natural wood finish, non-toxic
+                      </li>
+                      <li className="flex items-center">
+                        <span className="w-2 h-2 bg-amber-400 rounded-full mr-3 flex-shrink-0"></span>
+                        Free shipping with Amazon Prime
+                      </li>
                     </ul>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button
-                      asChild
-                      className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-lg py-4"
+                  >
+                    <a
+                      href="https://amazon.com/your-store-link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center"
                     >
-                      <a
-                        href={product.amazonLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center"
-                      >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        View on Amazon
-                      </a>
-                    </Button>
-                  </div>
+                      <ExternalLink className="h-5 w-5 mr-2" />
+                      Buy Now on Amazon
+                    </a>
+                  </Button>
                 </CardContent>
-              </Card>
-            ))}
+              </div>
+            </Card>
           </div>
         </div>
       </section>
