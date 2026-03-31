@@ -1,0 +1,48 @@
+<div class="table-shell">
+  <table mat-table [dataSource]="orders()" class="orders-table mat-elevation-z2">
+    <ng-container matColumnDef="orderId">
+      <th mat-header-cell *matHeaderCellDef>Order ID</th>
+      <td mat-cell *matCellDef="let order">{{ order.AmazonOrderId }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let order">
+        <span class="status">{{ order.OrderStatus }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="channel">
+      <th mat-header-cell *matHeaderCellDef>Channel</th>
+      <td mat-cell *matCellDef="let order">
+        <span
+          [class]="
+            order.FulfillmentChannel === 'AFN' ? 'channel-afn' : 'channel-mfn'
+          "
+        >
+          {{ order.FulfillmentChannel }}
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="purchaseDate">
+      <th mat-header-cell *matHeaderCellDef>Purchase (McLean)</th>
+      <td mat-cell *matCellDef="let order">
+        {{ toMcLean(order.PurchaseDate) | date: 'yyyy-MM-dd HH:mm:ss z' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="total">
+      <th mat-header-cell *matHeaderCellDef>Total</th>
+      <td mat-cell *matCellDef="let order" [class.high-value]="isHighValue(order)">
+        {{
+          order.OrderTotal.Amount
+            | currency : order.OrderTotal.CurrencyCode : 'symbol' : '1.2-2'
+        }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>

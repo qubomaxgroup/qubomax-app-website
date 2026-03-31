@@ -1,0 +1,45 @@
+.dashboard-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: #e5f3ec;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #e8fff4;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: #95b8a8;
+  font-size: 0.95rem;
+}
+
+.error-panel {
+  border: 1px solid #6a1f1f;
+  background: #301313;
+  color: #ff9e9e;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+.loading-panel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #bfe9d5;
+}

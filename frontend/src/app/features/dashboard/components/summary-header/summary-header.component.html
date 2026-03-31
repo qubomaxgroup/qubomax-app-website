@@ -1,0 +1,20 @@
+<section class="summary-header">
+  <article class="card">
+    <div class="label">Total Revenue</div>
+    <div class="value">
+      {{ totalRevenue() | currency:'USD':'symbol':'1.2-2' }}
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="label">Order Count</div>
+    <div class="value">{{ orderCount() }}</div>
+  </article>
+
+  <article class="card">
+    <div class="label">Average Order Value</div>
+    <div class="value">
+      {{ averageOrderValue() | currency:'USD':'symbol':'1.2-2' }}
+    </div>
+  </article>
+</section>

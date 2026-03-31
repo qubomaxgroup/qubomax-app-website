@@ -1,0 +1,33 @@
+<main class="dashboard-shell">
+  <header class="topbar">
+    <div>
+      <h1>Qubomax Sales Command Center</h1>
+      <p class="subtitle">Amazon SP-API • Marketplace: ATVPDKIKX0DER</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="store.refresh()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </header>
+
+  @if (store.error()) {
+    <section class="error-panel">
+      {{ store.error() }}
+    </section>
+  }
+
+  @if (store.loading()) {
+    <section class="loading-panel">
+      <mat-spinner diameter="36"></mat-spinner>
+      <span>Loading dashboard...</span>
+    </section>
+  }
+
+  <app-summary-header
+    [totalRevenue]="store.totalRevenue()"
+    [orderCount]="store.orderCount()"
+    [averageOrderValue]="store.averageOrderValue()"
+  />
+
+  <app-order-table [orders]="store.orders()" />
+</main>
