@@ -1,1 +1,0 @@
-# qubomax-app-website
