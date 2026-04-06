@@ -41,6 +41,12 @@ function setFeedback(message, isError = false) {
   el.className = `feedback ${isError ? "error" : "success"}`;
 }
 
+function setGmailMessage(message, isError = false) {
+  const el = document.getElementById("gmailStatus");
+  el.textContent = message;
+  el.className = `feedback ${isError ? "error" : "success"}`;
+}
+
 function renderSummary(metrics) {
   const stats = document.getElementById("stats");
   const items = [
@@ -140,16 +146,18 @@ async function loadDashboard() {
 }
 
 function renderGmailStatus(statusPayload) {
-  const el = document.getElementById("gmailStatus");
   if (!statusPayload || !statusPayload.configured) {
-    el.textContent = "Gmail is not configured. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI.";
+    setGmailMessage(
+      "Gmail is not configured. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI.",
+      true
+    );
     return;
   }
   if (!statusPayload.connected) {
-    el.textContent = "Gmail not connected yet.";
+    setGmailMessage("Gmail not connected yet.");
     return;
   }
-  el.textContent = `Connected Gmail: ${statusPayload.email || "unknown"}`;
+  setGmailMessage(`Connected Gmail: ${statusPayload.email || "unknown"}`);
 }
 
 async function loadGmailStatus() {
@@ -276,6 +284,10 @@ function wireEvents() {
 
   document.getElementById("connectGmailButton").addEventListener("click", async () => {
     try {
+      if (!state.organizationId) {
+        throw new Error("Organization is not ready yet. Please refresh and try again.");
+      }
+      setGmailMessage("Redirecting to Google OAuth...");
       const payload = await request(
         `/api/gmail/connect-url?organizationId=${encodeURIComponent(state.organizationId)}`
       );
@@ -284,26 +296,36 @@ function wireEvents() {
       }
       window.location.href = payload.authUrl;
     } catch (error) {
+      setGmailMessage(error.message, true);
       setFeedback(error.message, true);
     }
   });
 
   document.getElementById("syncGmailButton").addEventListener("click", async () => {
+    const syncButton = document.getElementById("syncGmailButton");
     try {
+      if (!state.organizationId) {
+        throw new Error("Organization is not ready yet. Please refresh and try again.");
+      }
+      syncButton.disabled = true;
+      setGmailMessage("Syncing Gmail quotes...");
       const payload = await request("/api/gmail/sync", {
         method: "POST",
         body: JSON.stringify({
           organizationId: state.organizationId,
         }),
       });
-      setFeedback(
-        `Gmail sync complete: imported ${payload.importedQuotes} quotes, created ${payload.createdLeads} leads, skipped ${payload.skipped}.`
-      );
+      const summary = `Gmail sync complete: imported ${payload.importedQuotes} quotes, created ${payload.createdLeads} leads, skipped ${payload.skipped}.`;
+      setGmailMessage(summary);
+      setFeedback(summary);
       await loadLeads();
       await loadDashboard();
       await loadGmailStatus();
     } catch (error) {
+      setGmailMessage(error.message, true);
       setFeedback(error.message, true);
+    } finally {
+      syncButton.disabled = false;
     }
   });
 
