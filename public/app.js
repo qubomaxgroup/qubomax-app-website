@@ -1,5 +1,7 @@
 const state = {
   organizationId: null,
+  organizations: [],
+  leads: [],
   quotes: [],
 };
 
@@ -39,14 +41,27 @@ function setFeedback(message, isError = false) {
 }
 
 function renderSummary(metrics) {
-  document.getElementById("totalQuotes").textContent = metrics.totalQuotes;
-  document.getElementById("pendingQuotes").textContent = metrics.pendingQuotes;
-  document.getElementById("repliedQuotes").textContent = metrics.repliedQuotes;
-  document.getElementById("wonQuotes").textContent = metrics.wonQuotes;
-  document.getElementById("lostQuotes").textContent = metrics.lostQuotes;
-  document.getElementById("pipelineValue").textContent = formatCurrency(metrics.pipelineValue);
-  document.getElementById("wonValue").textContent = formatCurrency(metrics.wonValue);
-  document.getElementById("overdueFollowups").textContent = metrics.overdueFollowups;
+  const stats = document.getElementById("stats");
+  const items = [
+    ["Total Quotes", metrics.totalQuotes],
+    ["Pending", metrics.pendingQuotes],
+    ["Replied", metrics.repliedQuotes],
+    ["Won", metrics.wonQuotes],
+    ["Lost", metrics.lostQuotes],
+    ["Pipeline Value", formatCurrency(metrics.pipelineValue)],
+    ["Won Value", formatCurrency(metrics.wonValue)],
+    ["Overdue Follow-ups", metrics.overdueFollowups],
+  ];
+  stats.innerHTML = items
+    .map(
+      ([label, value]) => `
+        <div class="card">
+          <div class="card-title">${label}</div>
+          <div class="card-value">${value}</div>
+        </div>
+      `
+    )
+    .join("");
 }
 
 function quoteActions(quote) {
@@ -77,8 +92,8 @@ function renderQuotes(quotes) {
       <td>${quote.subject}</td>
       <td>${formatCurrency(quote.amount)}</td>
       <td><span class="status ${quote.status}">${quote.status}</span></td>
-      <td>${formatDate(quote.lastFollowupAt)}</td>
-      <td>${formatDate(quote.nextFollowupAt)}</td>
+      <td>${quote.sentFollowUpCount}</td>
+      <td>${formatDate(quote.nextFollowUpAt)}</td>
       <td>${quoteActions(quote)}</td>
     `;
     tbody.appendChild(tr);
@@ -86,9 +101,10 @@ function renderQuotes(quotes) {
 }
 
 async function ensureOrganization() {
-  const orgs = await request("/api/organizations");
-  if (orgs.length > 0) {
-    state.organizationId = orgs[0].id;
+  const payload = await request("/api/organizations");
+  state.organizations = payload.organizations || [];
+  if (state.organizations.length > 0) {
+    state.organizationId = state.organizations[0].id;
     return;
   }
   const org = await request("/api/organizations", {
@@ -96,51 +112,81 @@ async function ensureOrganization() {
     body: JSON.stringify({ name: "My Business" }),
   });
   state.organizationId = org.id;
+  state.organizations = [org];
+}
+
+async function loadLeads() {
+  const payload = await request(`/api/leads?organizationId=${state.organizationId}`);
+  state.leads = payload.leads || [];
+  const select = document.getElementById("leadSelect");
+  select.innerHTML = "";
+  for (const lead of state.leads) {
+    const option = document.createElement("option");
+    option.value = lead.id;
+    option.textContent = `${lead.name} (${lead.email})`;
+    select.appendChild(option);
+  }
 }
 
 async function loadDashboard() {
-  const data = await request(`/api/dashboard/${state.organizationId}`);
-  state.quotes = data.quotes;
-  renderSummary(data.metrics);
-  renderQuotes(data.quotes);
+  const [dashboard, quotePayload] = await Promise.all([
+    request(`/api/dashboard/${state.organizationId}`),
+    request(`/api/quotes?organizationId=${state.organizationId}`),
+  ]);
+  state.quotes = quotePayload.quotes || [];
+  renderSummary(dashboard.metrics);
+  renderQuotes(state.quotes);
+}
+
+async function addLead(form) {
+  const formData = new FormData(form);
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim();
+  const company = String(formData.get("company") || "").trim();
+  if (!name || !email) {
+    throw new Error("Please provide lead name and email.");
+  }
+  await request("/api/leads", {
+    method: "POST",
+    body: JSON.stringify({
+      organizationId: state.organizationId,
+      name,
+      email,
+      company,
+    }),
+  });
+}
+
+function parseSequenceDays(raw) {
+  if (!raw) {
+    return [2, 5, 10];
+  }
+  const values = String(raw)
+    .split(",")
+    .map((item) => Number.parseInt(item.trim(), 10))
+    .filter((item) => Number.isInteger(item) && item > 0);
+  return values.length > 0 ? values : [2, 5, 10];
 }
 
 async function addQuote(form) {
   const formData = new FormData(form);
-  const leadName = String(formData.get("leadName") || "").trim();
-  const leadEmail = String(formData.get("leadEmail") || "").trim();
-  const company = String(formData.get("company") || "").trim();
-  const subject = String(formData.get("subject") || "").trim();
+  const leadId = String(formData.get("leadId") || "").trim();
+  const title = String(formData.get("title") || "").trim();
   const amount = Number(formData.get("amount"));
-
-  if (!leadName || !leadEmail || !company || !subject || !Number.isFinite(amount) || amount <= 0) {
-    throw new Error("Please fill all fields with valid values.");
+  const followupDays = parseSequenceDays(formData.get("sequenceDays"));
+  if (!leadId || !title || !Number.isFinite(amount) || amount <= 0) {
+    throw new Error("Please provide a lead, title, and valid amount.");
   }
-
-  const lead = await request("/api/leads", {
-    method: "POST",
-    body: JSON.stringify({
-      organizationId: state.organizationId,
-      name: leadName,
-      email: leadEmail,
-      company,
-    }),
-  });
-
   await request("/api/quotes", {
     method: "POST",
     body: JSON.stringify({
       organizationId: state.organizationId,
-      leadId: lead.id,
-      subject,
+      leadId,
+      subject: title,
       amount,
-      followupDays: [2, 5, 10],
+      followupDays,
     }),
   });
-}
-
-async function runScheduler() {
-  await request("/api/followups/run", { method: "POST" });
 }
 
 async function updateQuoteStatus(id, action) {
@@ -157,12 +203,25 @@ async function updateQuoteStatus(id, action) {
 }
 
 function wireEvents() {
-  const form = document.getElementById("newQuoteForm");
-  form.addEventListener("submit", async (event) => {
+  const leadForm = document.getElementById("leadForm");
+  leadForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
-      await addQuote(form);
-      form.reset();
+      await addLead(leadForm);
+      leadForm.reset();
+      await loadLeads();
+      setFeedback("Lead created.");
+    } catch (error) {
+      setFeedback(error.message, true);
+    }
+  });
+
+  const quoteForm = document.getElementById("quoteForm");
+  quoteForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      await addQuote(quoteForm);
+      quoteForm.reset();
       setFeedback("Quote created and follow-ups scheduled.");
       await loadDashboard();
     } catch (error) {
@@ -180,10 +239,10 @@ function wireEvents() {
     }
   });
 
-  document.getElementById("runSchedulerButton").addEventListener("click", async () => {
+  document.getElementById("runCycleButton").addEventListener("click", async () => {
     try {
       const payload = await request("/api/followups/run", { method: "POST" });
-      setFeedback(`Scheduler processed ${payload.processed} follow-ups.`);
+      setFeedback(`Scheduler processed ${payload.sentCount} follow-ups.`);
       await loadDashboard();
     } catch (error) {
       setFeedback(error.message, true);
@@ -212,6 +271,7 @@ function wireEvents() {
 
 async function init() {
   await ensureOrganization();
+  await loadLeads();
   wireEvents();
   await loadDashboard();
 }

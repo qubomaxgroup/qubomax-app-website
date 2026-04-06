@@ -9,5 +9,6 @@ function initEmptyData() {
 
 module.exports = {
   initEmptyData,
+  defaultDatabase: initEmptyData,
 };
 

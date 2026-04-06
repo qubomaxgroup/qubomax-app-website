@@ -1,5 +1,5 @@
 const { createOrganization, createLead, createQuoteThread } = require("./dataStore");
-const { scheduleFollowUpsForQuote } = require("./followupEngine");
+const { scheduleFollowUps } = require("./followupEngine");
 
 function seedIfEmpty(db) {
   if (db.organizations.length > 0 || db.quoteThreads.length > 0) {
@@ -45,7 +45,7 @@ function seedIfEmpty(db) {
       amount: item.amount,
       followupDays: [2, 5, 10],
     });
-    scheduleFollowUpsForQuote(quote, [2, 5, 10]);
+    scheduleFollowUps(quote, [2, 5, 10]);
   }
 
   return true;

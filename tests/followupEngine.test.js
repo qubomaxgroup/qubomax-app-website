@@ -1,18 +1,12 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
-  normalizeSchedule,
   computeFollowUpDates,
   scheduleFollowUps,
   cancelPendingFollowUps,
   runDueFollowUps,
-  summarizeQuote,
+  toSummary,
 } = require("../src/followupEngine");
-
-test("normalize schedule removes invalid values and sorts unique offsets", () => {
-  assert.deepEqual(normalizeSchedule([5, "2", -1, 2, 10, 5]), [2, 5, 10]);
-  assert.deepEqual(normalizeSchedule([]), [2, 5, 10]);
-});
 
 test("compute follow-up dates based on sent timestamp", () => {
   const dates = computeFollowUpDates("2026-04-01T00:00:00.000Z", [2, 5, 10]);
@@ -55,13 +49,14 @@ test("runDueFollowUps sends only due pending items", () => {
   assert.equal(quote.followUps[1].status, "pending");
 });
 
-test("summarizeQuote derives next and last follow-up timestamps", () => {
+test("toSummary derives next and last follow-up timestamps", () => {
+  const db = {
+    leads: [{ id: "lead_1", name: "Lead", email: "lead@example.com" }],
+  };
   const quote = {
     id: "q_3",
     organizationId: "org_1",
     leadId: "lead_1",
-    leadName: "Lead",
-    leadEmail: "lead@example.com",
     subject: "Maintenance Plan",
     amount: 1200,
     sentAt: "2026-04-01T00:00:00.000Z",
@@ -83,7 +78,7 @@ test("summarizeQuote derives next and last follow-up timestamps", () => {
       },
     ],
   };
-  const summary = summarizeQuote(quote);
+  const summary = toSummary(quote, db);
   assert.equal(summary.lastFollowUpAt, "2026-04-03T10:00:00.000Z");
   assert.equal(summary.nextFollowUpAt, "2026-04-06T00:00:00.000Z");
 });

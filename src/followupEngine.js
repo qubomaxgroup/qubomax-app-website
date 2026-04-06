@@ -3,16 +3,26 @@ const crypto = require("node:crypto");
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_SEQUENCE_DAYS = [2, 5, 10];
 
-function computeFollowUpDates(sentAt, scheduleDays = DEFAULT_SEQUENCE_DAYS) {
-  const sentAtMs = new Date(sentAt).getTime();
-  return scheduleDays.map((day) => new Date(sentAtMs + day * DAY_MS).toISOString());
+function normalizeSchedule(scheduleDays = DEFAULT_SEQUENCE_DAYS) {
+  if (!Array.isArray(scheduleDays)) {
+    return [...DEFAULT_SEQUENCE_DAYS];
+  }
+  const normalized = [...new Set(
+    scheduleDays
+      .map((value) => Number.parseInt(value, 10))
+      .filter((value) => Number.isInteger(value) && value > 0)
+  )].sort((a, b) => a - b);
+  return normalized.length > 0 ? normalized : [...DEFAULT_SEQUENCE_DAYS];
 }
 
-function scheduleFollowUps(quote) {
-  const scheduleDays = Array.isArray(quote.followupDays) && quote.followupDays.length > 0
-    ? quote.followupDays
-    : DEFAULT_SEQUENCE_DAYS;
+function computeFollowUpDates(sentAt, scheduleDays = DEFAULT_SEQUENCE_DAYS) {
+  const sentAtMs = new Date(sentAt).getTime();
+  const normalized = normalizeSchedule(scheduleDays);
+  return normalized.map((day) => new Date(sentAtMs + day * DAY_MS).toISOString());
+}
 
+function scheduleFollowUps(quote, explicitScheduleDays) {
+  const scheduleDays = explicitScheduleDays || quote.followupDays || DEFAULT_SEQUENCE_DAYS;
   const dates = computeFollowUpDates(quote.sentAt, scheduleDays);
   quote.followUps = dates.map((scheduledAt, index) => ({
     id: crypto.randomUUID(),
@@ -42,8 +52,12 @@ function shouldStopFollowUps(status) {
 }
 
 function cancelPendingFollowUps(quote) {
+  const followUps = Array.isArray(quote) ? quote : quote.followUps;
+  if (!Array.isArray(followUps)) {
+    return 0;
+  }
   let cancelled = 0;
-  for (const item of quote.followUps) {
+  for (const item of followUps) {
     if (item.status === "pending") {
       item.status = "cancelled";
       cancelled += 1;
@@ -80,19 +94,18 @@ function runDueFollowUps(quotes, runAt = new Date().toISOString()) {
   return events;
 }
 
-function toSummary(quote, db) {
-  const lead = db.leads.find((item) => item.id === quote.leadId);
+function summarizeQuote(quote) {
   const sentFollowUps = quote.followUps.filter((item) => item.status === "sent");
   const pendingFollowUps = quote.followUps.filter((item) => item.status === "pending");
-  const nextFollowUp = pendingFollowUps.sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt))[0];
-  const lastSent = sentFollowUps.sort((a, b) => b.sentAt.localeCompare(a.sentAt))[0];
+  const nextFollowUp = [...pendingFollowUps].sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt))[0];
+  const lastSent = [...sentFollowUps].sort((a, b) => b.sentAt.localeCompare(a.sentAt))[0];
 
   return {
     id: quote.id,
     organizationId: quote.organizationId,
     leadId: quote.leadId,
-    leadName: lead ? lead.name : "Unknown",
-    leadEmail: lead ? lead.email : "unknown@example.com",
+    leadName: quote.leadName,
+    leadEmail: quote.leadEmail,
     subject: quote.subject,
     amount: quote.amount,
     status: quote.status,
@@ -105,12 +118,23 @@ function toSummary(quote, db) {
   };
 }
 
+function toSummary(quote, db) {
+  const lead = db.leads.find((item) => item.id === quote.leadId);
+  return summarizeQuote({
+    ...quote,
+    leadName: lead ? lead.name : "Unknown",
+    leadEmail: lead ? lead.email : "unknown@example.com",
+  });
+}
+
 module.exports = {
   DEFAULT_SEQUENCE_DAYS,
+  normalizeSchedule,
   computeFollowUpDates,
   scheduleFollowUps,
   shouldStopFollowUps,
   cancelPendingFollowUps,
   runDueFollowUps,
+  summarizeQuote,
   toSummary,
 };
