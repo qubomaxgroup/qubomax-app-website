@@ -1,5 +1,4 @@
-/backend/target
-/frontend/dist
-/frontend/.angular
-/frontend/node_modules
+/node_modules
 *.log
+.env
+/data/db.local.json

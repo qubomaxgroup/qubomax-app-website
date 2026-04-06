@@ -1,118 +1,128 @@
-# Qubomax Sales Command Center
+# Quote Follow-up Assistant
 
-Clean full-stack starter kit for Amazon SP-API order analytics.
+Quote Follow-up Assistant is a clean replacement app built for one purpose: help teams follow up every quote consistently until the prospect replies or the opportunity is closed.
 
-## Stack
+## What this app does
 
-- Backend: Java 21 + Spring Boot 3.x
-- Frontend: Angular 18 (Signals + Angular Material)
-- Database: PostgreSQL (Spring Data JPA)
-- Auth: Internal JWT login endpoint (can be swapped to Cognito)
-- AWS: Secrets Manager for SP-API secret retrieval
+- tracks organizations, leads, and quote threads
+- auto-schedules follow-ups (default cadence: day 2, day 5, day 10)
+- sends due follow-ups when scheduler runs
+- cancels pending follow-ups when a lead replies
+- allows marking quotes as won/lost
+- shows dashboard metrics and quote-level actions
 
-## Project Structure
+## Tech stack
 
-```
+- Runtime: Node.js 20+
+- Backend: Express 5
+- Frontend: Vanilla HTML/CSS/JS
+- Storage: Local JSON file (`data/db.local.json`)
+- Testing: Node built-in test runner (`node --test`)
+
+## Project structure
+
+```text
 .
-├── backend
-│   ├── pom.xml
-│   └── src
-│       ├── main
-│       │   ├── java/com/qubomax/commandcenter
-│       │   │   ├── config
-│       │   │   ├── security
-│       │   │   └── spapi
-│       │   │       ├── controller
-│       │   │       ├── dto
-│       │   │       ├── entity
-│       │   │       ├── model
-│       │   │       ├── repository
-│       │   │       └── service
-│       │   └── resources
-│       │       ├── application.properties
-│       │       └── mock/sp-api-orders.sample.json
-│       └── test
-├── frontend
-│   ├── package.json
-│   └── src
-│       ├── app
-│       │   ├── core
-│       │   │   ├── models
-│       │   │   └── services
-│       │   └── features/dashboard
-│       │       ├── components
-│       │       └── pages
-│       └── environments
-└── docker-compose.yml
+├── data/
+├── public/
+│   ├── app.js
+│   ├── index.html
+│   └── styles.css
+├── src/
+│   ├── dataStore.js
+│   ├── followupEngine.js
+│   ├── models.js
+│   ├── sampleData.js
+│   └── server.js
+├── tests/
+│   └── followupEngine.test.js
+├── package.json
+└── README.md
 ```
 
-## Local Run
+## API overview
 
-### 1) Start PostgreSQL
+### Health
 
-```bash
-docker compose up -d db
-```
-
-### 2) Run backend (port 8080)
-
-```bash
-cd backend
-./mvnw spring-boot:run
-```
-
-### 3) Run frontend (port 4200)
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-Open: http://localhost:4200
-
-## Environment Variables (Backend)
-
-Set before backend start:
-
-```bash
-export SP_API_CLIENT_ID="<your-lwa-client-id>"
-export SP_API_SECRET_NAME="qubomax/sp-api"
-export AWS_REGION="us-east-1"
-export JWT_SECRET="replace-with-strong-secret-at-least-32-characters"
-export APP_INTERNAL_USERNAME="admin"
-export APP_INTERNAL_PASSWORD="change-me"
-```
-
-Secrets Manager JSON should include:
-
-```json
-{
-  "SP_API_CLIENT_SECRET": "....",
-  "SP_API_REFRESH_TOKEN": "...."
-}
-```
-
-## API Endpoints
-
-- `POST /api/auth/login`
-  - body: `{ "username": "...", "password": "..." }`
-  - returns JWT
-- `GET /api/orders/daily-summary?marketplaceId=ATVPDKIKX0DER`
-  - requires `Authorization: Bearer <token>`
-  - returns total revenue, order count, average order value, status counts, high-value orders
 - `GET /api/health`
 
-## Core Backend classes requested
+### Organizations
 
-- `SecretManagerService`
-- `SpApiHttpClient` (LWA token exchange + SP-API orders fetch via WebClient)
-- `OrdersService` (aggregation + timezone conversion + high-value detection)
+- `GET /api/organizations`
+- `POST /api/organizations`
+  - body:
+    ```json
+    { "name": "Qubomax Services" }
+    ```
 
-## Core Frontend classes requested
+### Leads
 
-- `dashboard.store.ts` (Angular Signals state)
-- `dashboard.component.ts`
-- `summary-header.component.*`
-- `order-table.component.*`
+- `GET /api/leads?organizationId=<orgId>`
+- `POST /api/leads`
+  - body:
+    ```json
+    {
+      "organizationId": "<orgId>",
+      "name": "Apex Roofing",
+      "email": "ops@apex-roofing.example",
+      "company": "Apex Roofing"
+    }
+    ```
+
+### Quotes
+
+- `GET /api/quotes?organizationId=<orgId>&status=pending`
+- `POST /api/quotes`
+  - body:
+    ```json
+    {
+      "organizationId": "<orgId>",
+      "leadId": "<leadId>",
+      "subject": "Commercial roof patching",
+      "amount": 12500,
+      "followupDays": [2, 5, 10]
+    }
+    ```
+- `POST /api/quotes/:id/reply`
+- `POST /api/quotes/:id/won`
+- `POST /api/quotes/:id/lost`
+
+### Scheduler and dashboard
+
+- `POST /api/followups/run`
+- `GET /api/dashboard/:organizationId`
+- `POST /api/seed` (seed sample organization/leads/quotes if database is empty)
+
+## Local development
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Start app:
+
+```bash
+npm run dev
+```
+
+3. Open dashboard:
+
+```text
+http://localhost:3000
+```
+
+4. Run tests:
+
+```bash
+npm test
+```
+
+## Next upgrades (optional)
+
+- move from JSON storage to Postgres + Prisma
+- add Gmail/Outlook OAuth ingestion
+- run scheduler as background job (Inngest or Trigger.dev)
+- add Stripe billing and multi-tenant auth
 
