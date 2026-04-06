@@ -3,6 +3,7 @@ const state = {
   organizations: [],
   leads: [],
   quotes: [],
+  gmailStatus: null,
 };
 
 function formatCurrency(value) {
@@ -138,6 +139,25 @@ async function loadDashboard() {
   renderQuotes(state.quotes);
 }
 
+function renderGmailStatus(statusPayload) {
+  const el = document.getElementById("gmailStatus");
+  if (!statusPayload || !statusPayload.configured) {
+    el.textContent = "Gmail is not configured. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI.";
+    return;
+  }
+  if (!statusPayload.connected) {
+    el.textContent = "Gmail not connected yet.";
+    return;
+  }
+  el.textContent = `Connected Gmail: ${statusPayload.email || "unknown"}`;
+}
+
+async function loadGmailStatus() {
+  const payload = await request("/api/gmail/status");
+  state.gmailStatus = payload;
+  renderGmailStatus(payload);
+}
+
 async function addLead(form) {
   const formData = new FormData(form);
   const name = String(formData.get("name") || "").trim();
@@ -252,6 +272,39 @@ function wireEvents() {
     }
   });
 
+  document.getElementById("connectGmailButton").addEventListener("click", async () => {
+    try {
+      const payload = await request(
+        `/api/gmail/connect-url?organizationId=${encodeURIComponent(state.organizationId)}`
+      );
+      if (!payload.authUrl) {
+        throw new Error("Gmail connect URL unavailable.");
+      }
+      window.location.href = payload.authUrl;
+    } catch (error) {
+      setFeedback(error.message, true);
+    }
+  });
+
+  document.getElementById("syncGmailButton").addEventListener("click", async () => {
+    try {
+      const payload = await request("/api/gmail/sync", {
+        method: "POST",
+        body: JSON.stringify({
+          organizationId: state.organizationId,
+        }),
+      });
+      setFeedback(
+        `Gmail sync complete: imported ${payload.imported} quotes, skipped ${payload.skipped}.`
+      );
+      await loadLeads();
+      await loadDashboard();
+      await loadGmailStatus();
+    } catch (error) {
+      setFeedback(error.message, true);
+    }
+  });
+
   document.getElementById("quoteRows").addEventListener("click", async (event) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) {
@@ -289,6 +342,7 @@ function wireEvents() {
 async function init() {
   await ensureOrganization();
   await loadLeads();
+  await loadGmailStatus();
   wireEvents();
   await loadDashboard();
 }

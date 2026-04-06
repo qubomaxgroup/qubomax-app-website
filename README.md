@@ -17,6 +17,7 @@ Quote Follow-up Assistant is a clean replacement app built for one purpose: help
 - Backend: Express 5
 - Frontend: Vanilla HTML/CSS/JS
 - Storage: Local JSON file (`data/db.local.json`)
+- Integrations: Google Gmail API (OAuth + sent-mail quote sync)
 - Testing: Node built-in test runner (`node --test`)
 
 ## Project structure
@@ -92,6 +93,34 @@ Quote Follow-up Assistant is a clean replacement app built for one purpose: help
 - `POST /api/followups/run`
 - `GET /api/dashboard/:organizationId`
 - `POST /api/seed` (seed sample organization/leads/quotes if database is empty)
+
+### Gmail (Phase 1)
+
+- `GET /api/gmail/status?organizationId=<orgId>`
+- `GET /api/gmail/connect-url?organizationId=<orgId>`
+- `GET /api/gmail/callback?code=<oauth-code>&state=<orgId>`
+- `POST /api/gmail/sync`
+  - body:
+    ```json
+    {
+      "organizationId": "<orgId>"
+    }
+    ```
+
+## Gmail setup
+
+Set these environment variables before running the app:
+
+```bash
+export GMAIL_CLIENT_ID="<google-oauth-client-id>"
+export GMAIL_CLIENT_SECRET="<google-oauth-client-secret>"
+export GMAIL_REDIRECT_URI="http://localhost:3000/api/gmail/callback"
+```
+
+In Google Cloud Console:
+1. enable Gmail API
+2. configure OAuth consent screen
+3. create Web OAuth client with the redirect URI above
 
 ## Local development
 

@@ -10,6 +10,10 @@ const {
   findOrganization,
   findLead,
   findQuoteThread,
+  findLeadByEmail,
+  findQuoteByGmailThread,
+  upsertGmailConnection,
+  getGmailConnection,
 } = require("./dataStore");
 const {
   scheduleFollowUps,
@@ -17,6 +21,13 @@ const {
   runDueFollowUps,
   toSummary,
 } = require("./followupEngine");
+const {
+  hasGmailConfig,
+  buildAuthUrl,
+  exchangeCodeForTokens,
+  getProfile,
+  syncQuotesFromSent,
+} = require("./gmailService");
 const { seedIfEmpty } = require("./sampleData");
 
 const app = express();
@@ -38,7 +49,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.get("/api/organizations", (req, res) => {
-  res.json(req.db.organizations);
+  res.json({ organizations: req.db.organizations });
 });
 
 app.post("/api/organizations", (req, res) => {
@@ -214,6 +225,141 @@ app.post("/api/seed", (req, res) => {
     return res.status(200).json({ ok: true, seeded: false, message: "Demo data already exists" });
   }
   res.status(201).json({ ok: true, seeded: true, message: "Demo data created" });
+});
+
+app.get("/api/gmail/status", (req, res) => {
+  const organizationId = req.query.organizationId;
+  if (!organizationId || typeof organizationId !== "string") {
+    return res.status(400).json({ error: "organizationId is required" });
+  }
+  const connection = getGmailConnection(req.db, organizationId);
+  res.json({
+    configured: hasGmailConfig(),
+    connected: Boolean(connection),
+    email: connection ? connection.email : null,
+    connectedAt: connection ? connection.connectedAt : null,
+    lastSyncAt: connection ? connection.lastSyncAt || null : null,
+  });
+});
+
+app.get("/api/gmail/connect-url", (req, res) => {
+  try {
+    const organizationId = req.query.organizationId;
+    if (!organizationId || typeof organizationId !== "string") {
+      return res.status(400).json({ error: "organizationId is required" });
+    }
+    const authUrl = buildAuthUrl(organizationId);
+    res.json({ authUrl });
+  } catch (error) {
+    res.status(500).json({
+      error: "Gmail OAuth is not configured. Set GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, and GMAIL_REDIRECT_URI.",
+    });
+  }
+});
+
+app.get("/api/gmail/callback", async (req, res) => {
+  try {
+    const code = req.query.code;
+    if (!code || typeof code !== "string") {
+      return res.status(400).send("Missing OAuth code");
+    }
+    const organizationId = req.query.state;
+    if (!organizationId || typeof organizationId !== "string") {
+      return res.status(400).send("Missing organization state");
+    }
+    const tokens = await exchangeCodeForTokens(code);
+    const profile = await getProfile(tokens);
+    const email = profile.emailAddress || null;
+    if (!email) {
+      return res.status(400).send("Could not determine Gmail account email");
+    }
+    const db = loadData();
+    if (!findOrganization(db, organizationId)) {
+      return res.status(400).send("Invalid organization in OAuth state");
+    }
+    upsertGmailConnection(db, { organizationId, email, tokens });
+    saveData(db);
+    res.redirect("/?gmail=connected");
+  } catch (error) {
+    res.status(500).send("Failed to complete Gmail OAuth callback");
+  }
+});
+
+app.post("/api/gmail/sync", async (req, res) => {
+  try {
+    const { organizationId } = req.body;
+    if (!organizationId || typeof organizationId !== "string") {
+      return res.status(400).json({ error: "organizationId is required" });
+    }
+    const org = findOrganization(req.db, organizationId);
+    if (!org) {
+      return res.status(404).json({ error: "organization not found" });
+    }
+    const connection = getGmailConnection(req.db, organizationId);
+    if (!connection) {
+      return res.status(400).json({ error: "Gmail is not connected" });
+    }
+    const candidates = await syncQuotesFromSent({
+      tokens: connection.tokens,
+      maxResults: 20,
+    });
+    let importedQuotes = 0;
+    let createdLeads = 0;
+    let skipped = 0;
+    for (const candidate of candidates) {
+      if (!candidate || !candidate.gmailThreadId || !candidate.recipientEmail) {
+        skipped += 1;
+        continue;
+      }
+      if (findQuoteByGmailThread(req.db, organizationId, candidate.gmailThreadId)) {
+        skipped += 1;
+        continue;
+      }
+
+      let lead = findLeadByEmail(req.db, organizationId, candidate.recipientEmail);
+      if (!lead) {
+        lead = createLead(req.db, {
+          organizationId: organizationId,
+          name: candidate.recipientName || candidate.recipientEmail.split("@")[0],
+          email: candidate.recipientEmail,
+          company: candidate.recipientName || "",
+        });
+        createdLeads += 1;
+      }
+
+      const quote = createQuoteThread(req.db, {
+        organizationId: organizationId,
+        leadId: lead.id,
+        subject: candidate.subject || "Imported Gmail quote",
+        amount: candidate.amount || 1000,
+        followupDays: [2, 5, 10],
+      });
+      quote.sentAt = candidate.sentAt || quote.createdAt;
+      quote.gmail = {
+        threadId: candidate.gmailThreadId,
+        messageId: candidate.gmailMessageId,
+      };
+      quote.source = "gmail";
+      quote.leadName = lead.name;
+      quote.leadEmail = lead.email;
+      scheduleFollowUps(quote);
+      importedQuotes += 1;
+    }
+
+    upsertGmailConnection(req.db, {
+      organizationId,
+      email: connection.email,
+      tokens: connection.tokens,
+      connectedAt: connection.connectedAt,
+      lastSyncAt: new Date().toISOString(),
+    });
+    saveData(req.db);
+    res.json({ importedQuotes, createdLeads, skipped, scanned: candidates.length });
+  } catch (error) {
+    res.status(500).json({
+      error: `Failed to sync Gmail quotes: ${error.message}`,
+    });
+  }
 });
 
 function bootstrap() {

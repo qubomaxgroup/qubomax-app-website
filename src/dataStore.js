@@ -19,6 +19,7 @@ function loadData() {
       organizations: Array.isArray(parsed.organizations) ? parsed.organizations : [],
       leads: Array.isArray(parsed.leads) ? parsed.leads : [],
       quoteThreads: Array.isArray(parsed.quoteThreads) ? parsed.quoteThreads : [],
+      gmailConnections: Array.isArray(parsed.gmailConnections) ? parsed.gmailConnections : [],
       version: parsed.version || 1,
     };
   } catch {
@@ -84,6 +85,49 @@ function createQuoteThread(db, { organizationId, leadId, subject, amount, follow
   return quote;
 }
 
+function findLeadByEmail(db, organizationId, email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  return db.leads.find(
+    (lead) =>
+      lead.organizationId === organizationId &&
+      String(lead.email || "").trim().toLowerCase() === normalizedEmail
+  );
+}
+
+function findQuoteByGmailThread(db, organizationId, gmailThreadId) {
+  return db.quoteThreads.find(
+    (quote) =>
+      quote.organizationId === organizationId &&
+      (quote.gmailThreadId === gmailThreadId ||
+        (quote.gmail && quote.gmail.threadId === gmailThreadId))
+  );
+}
+
+function upsertGmailConnection(db, { organizationId, email, tokens, connectedAt, lastSyncAt }) {
+  const existing = db.gmailConnections.find((conn) => conn.organizationId === organizationId);
+  const record = {
+    organizationId,
+    email,
+    tokens,
+    connectedAt: connectedAt || new Date().toISOString(),
+    lastSyncAt: lastSyncAt || null,
+    updatedAt: new Date().toISOString(),
+  };
+  if (existing) {
+    existing.email = record.email;
+    existing.tokens = record.tokens;
+    existing.lastSyncAt = record.lastSyncAt;
+    existing.updatedAt = record.updatedAt;
+    return existing;
+  }
+  db.gmailConnections.push(record);
+  return record;
+}
+
+function getGmailConnection(db, organizationId) {
+  return db.gmailConnections.find((conn) => conn.organizationId === organizationId) || null;
+}
+
 function appendEventToQuote(quote, type, message) {
   quote.events.push({
     id: crypto.randomUUID(),
@@ -117,8 +161,12 @@ module.exports = {
   createOrganization,
   createLead,
   createQuoteThread,
+  findLeadByEmail,
+  findQuoteByGmailThread,
   appendEventToQuote,
   updateQuoteStatus,
+  upsertGmailConnection,
+  getGmailConnection,
   findOrganization,
   findLead,
   findQuoteThread,

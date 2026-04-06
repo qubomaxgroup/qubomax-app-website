@@ -4,6 +4,7 @@ function initEmptyData() {
     organizations: [],
     leads: [],
     quoteThreads: [],
+    gmailConnections: [],
   };
 }
 
