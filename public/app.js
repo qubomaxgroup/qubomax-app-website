@@ -65,14 +65,14 @@ function renderSummary(metrics) {
 }
 
 function quoteActions(quote) {
-  if (quote.status !== "pending") {
-    return "<span class='muted'>Closed</span>";
+  if (quote.status === "pending") {
+    return `
+      <button data-action="reply" data-id="${quote.id}">Replied</button>
+      <button data-action="won" data-id="${quote.id}">Won</button>
+      <button data-action="lost" data-id="${quote.id}">Lost</button>
+    `;
   }
-  return `
-    <button data-action="reply" data-id="${quote.id}">Replied</button>
-    <button data-action="won" data-id="${quote.id}">Won</button>
-    <button data-action="lost" data-id="${quote.id}">Lost</button>
-  `;
+  return `<button data-action="reopen" data-id="${quote.id}">Reopen</button>`;
 }
 
 function renderQuotes(quotes) {
@@ -194,6 +194,7 @@ async function updateQuoteStatus(id, action) {
     reply: "reply",
     won: "won",
     lost: "lost",
+    reopen: "reopen",
   };
   const route = routeMap[action];
   if (!route) {
@@ -261,9 +262,23 @@ function wireEvents() {
     if (!id || !action) {
       return;
     }
+    const confirmationMap = {
+      reply: "Mark this quote as replied? This will stop pending follow-ups.",
+      won: "Mark this quote as won? This will close the quote and stop follow-ups.",
+      lost: "Mark this quote as lost? This will close the quote and stop follow-ups.",
+      reopen: "Reopen this quote? This will set it back to pending and recreate follow-ups.",
+    };
+    const confirmationMessage = confirmationMap[action];
+    if (confirmationMessage && !window.confirm(confirmationMessage)) {
+      return;
+    }
     try {
       await updateQuoteStatus(id, action);
-      setFeedback(`Quote marked as ${action}.`);
+      if (action === "reopen") {
+        setFeedback("Quote reopened.");
+      } else {
+        setFeedback(`Quote marked as ${action}.`);
+      }
       await loadDashboard();
     } catch (error) {
       setFeedback(error.message, true);
