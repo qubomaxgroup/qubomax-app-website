@@ -58,6 +58,7 @@ function createLead(db, { organizationId, name, email, company }) {
 }
 
 function createQuoteThread(db, { organizationId, leadId, subject, amount, followupDays }) {
+  const createdAt = new Date().toISOString();
   const quote = {
     id: crypto.randomUUID(),
     organizationId,
@@ -65,8 +66,9 @@ function createQuoteThread(db, { organizationId, leadId, subject, amount, follow
     subject,
     amount,
     status: "pending",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt,
+    sentAt: createdAt,
+    updatedAt: createdAt,
     followupDays: Array.isArray(followupDays) && followupDays.length > 0 ? followupDays : [2, 5, 10],
     followUps: [],
     events: [
@@ -74,7 +76,7 @@ function createQuoteThread(db, { organizationId, leadId, subject, amount, follow
         id: crypto.randomUUID(),
         type: "quote_sent",
         message: "Quote created and sent",
-        createdAt: new Date().toISOString(),
+        createdAt,
       },
     ],
   };

@@ -154,6 +154,22 @@ app.post("/api/quotes/:id/lost", (req, res) => {
   res.json(toSummary(quote, req.db));
 });
 
+app.post("/api/quotes/:id/reopen", (req, res) => {
+  const quote = findQuoteThread(req.db, req.params.id);
+  if (!quote) {
+    return res.status(404).json({ error: "quote not found" });
+  }
+  if (quote.status === "pending") {
+    return res.status(200).json(toSummary(quote, req.db));
+  }
+  appendEventToQuote(quote, "reopened", "Quote reopened after status update");
+  updateQuoteStatus(quote, "pending");
+  quote.followUps = [];
+  scheduleFollowUps(quote);
+  saveData(req.db);
+  res.json(toSummary(quote, req.db));
+});
+
 app.get("/api/dashboard/:organizationId", (req, res) => {
   const org = findOrganization(req.db, req.params.organizationId);
   if (!org) {
@@ -193,11 +209,11 @@ app.post("/api/followups/run", (req, res) => {
 
 app.post("/api/seed", (req, res) => {
   const added = seedIfEmpty(req.db);
-  if (!added) {
-    return res.status(409).json({ error: "seed data already exists" });
-  }
   saveData(req.db);
-  res.status(201).json({ ok: true });
+  if (!added) {
+    return res.status(200).json({ ok: true, seeded: false, message: "Demo data already exists" });
+  }
+  res.status(201).json({ ok: true, seeded: true, message: "Demo data created" });
 });
 
 function bootstrap() {

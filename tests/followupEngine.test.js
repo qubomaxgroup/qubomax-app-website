@@ -82,3 +82,9 @@ test("toSummary derives next and last follow-up timestamps", () => {
   assert.equal(summary.lastFollowUpAt, "2026-04-03T10:00:00.000Z");
   assert.equal(summary.nextFollowUpAt, "2026-04-06T00:00:00.000Z");
 });
+
+test("computeFollowUpDates falls back when sentAt is invalid", () => {
+  const dates = computeFollowUpDates("not-a-date", [2]);
+  assert.equal(dates.length, 1);
+  assert.ok(Number.isFinite(new Date(dates[0]).getTime()));
+});

@@ -16,7 +16,8 @@ function normalizeSchedule(scheduleDays = DEFAULT_SEQUENCE_DAYS) {
 }
 
 function computeFollowUpDates(sentAt, scheduleDays = DEFAULT_SEQUENCE_DAYS) {
-  const sentAtMs = new Date(sentAt).getTime();
+  const parsed = new Date(sentAt).getTime();
+  const sentAtMs = Number.isFinite(parsed) ? parsed : Date.now();
   const normalized = normalizeSchedule(scheduleDays);
   return normalized.map((day) => new Date(sentAtMs + day * DAY_MS).toISOString());
 }

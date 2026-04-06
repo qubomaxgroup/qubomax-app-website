@@ -31,7 +31,7 @@ function seedIfEmpty(db) {
     },
   ];
 
-  for (const item of leads) {
+  for (const [index, item] of leads.entries()) {
     const lead = createLead(db, {
       organizationId: org.id,
       name: item.name,
@@ -45,6 +45,8 @@ function seedIfEmpty(db) {
       amount: item.amount,
       followupDays: [2, 5, 10],
     });
+    // Backdate demo quotes so follow-ups are immediately due in local testing.
+    quote.sentAt = new Date(Date.now() - (12 + index) * 24 * 60 * 60 * 1000).toISOString();
     scheduleFollowUps(quote, [2, 5, 10]);
   }
 
