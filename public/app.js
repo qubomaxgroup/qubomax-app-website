@@ -153,7 +153,9 @@ function renderGmailStatus(statusPayload) {
 }
 
 async function loadGmailStatus() {
-  const payload = await request("/api/gmail/status");
+  const payload = await request(
+    `/api/gmail/status?organizationId=${encodeURIComponent(state.organizationId)}`
+  );
   state.gmailStatus = payload;
   renderGmailStatus(payload);
 }
@@ -295,7 +297,7 @@ function wireEvents() {
         }),
       });
       setFeedback(
-        `Gmail sync complete: imported ${payload.imported} quotes, skipped ${payload.skipped}.`
+        `Gmail sync complete: imported ${payload.importedQuotes} quotes, created ${payload.createdLeads} leads, skipped ${payload.skipped}.`
       );
       await loadLeads();
       await loadDashboard();
@@ -342,8 +344,8 @@ function wireEvents() {
 async function init() {
   await ensureOrganization();
   await loadLeads();
-  await loadGmailStatus();
   wireEvents();
+  await loadGmailStatus();
   await loadDashboard();
 }
 
