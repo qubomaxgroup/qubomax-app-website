@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quote Follow-up Assistant</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Quote Follow-up Assistant</h1>
+      <p class="subtitle">
+        Create leads, issue quotes, run follow-ups, and track outcomes.
+      </p>
+
+      <section class="panel">
+        <h2>Actions</h2>
+        <div class="action-row">
+          <button id="seedButton">Seed Demo Data</button>
+          <button id="runCycleButton">Run Follow-up Cycle</button>
+        </div>
+        <p id="feedback" class="feedback"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Create Lead</h2>
+        <form id="leadForm" class="form-grid">
+          <label>
+            Name
+            <input name="name" required />
+          </label>
+          <label>
+            Email
+            <input name="email" type="email" required />
+          </label>
+          <label>
+            Company
+            <input name="company" />
+          </label>
+          <button type="submit">Create Lead</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Create Quote</h2>
+        <form id="quoteForm" class="form-grid">
+          <label>
+            Lead
+            <select name="leadId" id="leadSelect" required></select>
+          </label>
+          <label>
+            Title
+            <input name="title" required />
+          </label>
+          <label>
+            Amount
+            <input name="amount" type="number" min="1" required />
+          </label>
+          <label>
+            Follow-up Days (comma-separated)
+            <input name="sequenceDays" placeholder="2,5,10" />
+          </label>
+          <button type="submit">Create Quote</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Dashboard</h2>
+        <div class="stats" id="stats"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Quotes</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Lead</th>
+                <th>Email</th>
+                <th>Title</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Sent Follow-ups</th>
+                <th>Next Follow-up</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="quoteRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "quote-follow-up-assistant",
+  "version": "1.0.0",
+  "description": "A starter Quote Follow-up Assistant app for SMB sales workflows.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "quote",
+    "follow-up",
+    "sales",
+    "smb",
+    "assistant"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
