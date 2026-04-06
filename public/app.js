@@ -231,8 +231,10 @@ function wireEvents() {
 
   document.getElementById("seedButton").addEventListener("click", async () => {
     try {
-      await request("/api/seed", { method: "POST" });
-      setFeedback("Seed data added.");
+      const payload = await request("/api/seed", { method: "POST" });
+      setFeedback(payload.message || "Demo data is ready.");
+      await ensureOrganization();
+      await loadLeads();
       await loadDashboard();
     } catch (error) {
       setFeedback(error.message, true);
@@ -242,7 +244,7 @@ function wireEvents() {
   document.getElementById("runCycleButton").addEventListener("click", async () => {
     try {
       const payload = await request("/api/followups/run", { method: "POST" });
-      setFeedback(`Scheduler processed ${payload.sentCount} follow-ups.`);
+      setFeedback(`Scheduler processed ${payload.processed} follow-ups.`);
       await loadDashboard();
     } catch (error) {
       setFeedback(error.message, true);

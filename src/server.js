@@ -193,11 +193,11 @@ app.post("/api/followups/run", (req, res) => {
 
 app.post("/api/seed", (req, res) => {
   const added = seedIfEmpty(req.db);
-  if (!added) {
-    return res.status(409).json({ error: "seed data already exists" });
-  }
   saveData(req.db);
-  res.status(201).json({ ok: true });
+  if (!added) {
+    return res.status(200).json({ ok: true, seeded: false, message: "Demo data already exists" });
+  }
+  res.status(201).json({ ok: true, seeded: true, message: "Demo data created" });
 });
 
 function bootstrap() {
