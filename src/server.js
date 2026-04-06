@@ -248,6 +248,12 @@ app.get("/api/gmail/connect-url", (req, res) => {
     if (!organizationId || typeof organizationId !== "string") {
       return res.status(400).json({ error: "organizationId is required" });
     }
+    if (!hasGmailConfig()) {
+      return res.status(500).json({
+        error:
+          "Gmail OAuth is not configured on the running server. Set GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, and GMAIL_REDIRECT_URI, then restart npm run dev.",
+      });
+    }
     const authUrl = buildAuthUrl(organizationId);
     res.json({ authUrl });
   } catch (error) {

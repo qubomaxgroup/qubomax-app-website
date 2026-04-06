@@ -17,8 +17,28 @@ function hasGmailConfig() {
   return Boolean(cfg.clientId && cfg.clientSecret && cfg.redirectUri);
 }
 
+function getMissingGmailConfigFields() {
+  const cfg = getGmailConfig();
+  const missing = [];
+  if (!cfg.clientId) {
+    missing.push("GMAIL_CLIENT_ID");
+  }
+  if (!cfg.clientSecret) {
+    missing.push("GMAIL_CLIENT_SECRET");
+  }
+  if (!cfg.redirectUri) {
+    missing.push("GMAIL_REDIRECT_URI");
+  }
+  return missing;
+}
+
 function createOAuthClient() {
   const cfg = getGmailConfig();
+  if (!cfg.clientId || !cfg.clientSecret || !cfg.redirectUri) {
+    const error = new Error("Missing Gmail OAuth configuration");
+    error.missing = getMissingGmailConfigFields();
+    throw error;
+  }
   return new google.auth.OAuth2(cfg.clientId, cfg.clientSecret, cfg.redirectUri);
 }
 
@@ -148,6 +168,7 @@ async function syncQuotesFromSent({ tokens, maxResults = 20 }) {
 module.exports = {
   REDIRECT_PATH,
   hasGmailConfig,
+  getMissingGmailConfigFields,
   buildAuthUrl,
   exchangeCodeForTokens,
   getProfile,
